@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<additionalHeaders>
+	<slashstar_style>
+		<firstLine>/*</firstLine>
+		<beforeEachLine> * </beforeEachLine>
+		<endLine> */</endLine>
+		<!-- afterEachLine></afterEachLine -->
+		<allowBlankLines>true</allowBlankLines>
+		<!-- skipLinePattern></skipLinePattern -->
+		<firstLineDetectionPattern>^\/\*$</firstLineDetectionPattern>
+		<lastLineDetectionPattern>^ \*\/$</lastLineDetectionPattern>
+		<isMultiline>true</isMultiline>
+		<padLines>false</padLines>
+	</slashstar_style>
+</additionalHeaders>
