@@ -18,7 +18,7 @@
 	<name>Maven Parent</name>
 	<description>Maven Parent</description>
 	<inceptionYear>2023</inceptionYear>
-	<url>https://https://bitbucket.org/go9tech/maven-parent</url>
+	<url>https://github.com/go9tech/maven-resources</url>
 
 	<organization>
 		<name>go9</name>
@@ -42,9 +42,9 @@
 	</developers>
 
 	<scm>
-		<url>https://bitbucket.org/go9tech/maven-parent</url>
-		<connection>scm:git:https://bitbucket.org/go9tech/maven-parent.git</connection>
-		<developerConnection>scm:git:https://bitbucket.org/go9tech/maven-parent.git</developerConnection>
+		<url>https://github.com/go9tech/maven-resources</url>
+		<connection>scm:git:https://github.com/go9tech/maven-resources.git</connection>
+		<developerConnection>scm:git:https://github.com/go9tech/maven-resources.git</developerConnection>
 	</scm>
 
 	<modules>
@@ -56,10 +56,10 @@
 		<!-- project properties -->
 		<java.version>19</java.version>
 
-		<!-- pipeline properties -->
-		<!-- pipeline.type>lib</pipeline.type -->
-		<pipeline.size>small</pipeline.size>
-		<pipeline.version>v1</pipeline.version>
+		<!-- workflow properties -->
+		<!-- workflow.type>lib</workflow.type -->
+		<workflow.size>small</workflow.size>
+		<workflow.version>v1</workflow.version>
 
 		<!-- docker-maven-plugin properties -->
 		<docker-maven-plugin.version>0.42.0</docker-maven-plugin.version>
@@ -158,14 +158,14 @@
 				<groupId>tech.go9</groupId>
 				<artifactId>maven-resources</artifactId>
 				<version>${maven-resources.version}</version>
-				<classifier>bitbucket-pipelines-lib-small-v1</classifier>
+				<classifier>github-workflow-lib-small-v1</classifier>
 				<type>yml</type>
 			</dependency>
 			<dependency>
 				<groupId>tech.go9</groupId>
 				<artifactId>maven-resources</artifactId>
 				<version>${maven-resources.version}</version>
-				<classifier>bitbucket-pipelines-service-small-v1</classifier>
+				<classifier>github-workflow-service-small-v1</classifier>
 				<type>yml</type>
 			</dependency>
 			<dependency>
@@ -187,13 +187,13 @@
 		<dependency>
 			<groupId>tech.go9</groupId>
 			<artifactId>maven-resources</artifactId>
-			<classifier>bitbucket-pipelines-lib-small-v1</classifier>
+			<classifier>github-workflow-lib-small-v1</classifier>
 			<type>yml</type>
 		</dependency>
 		<dependency>
 			<groupId>tech.go9</groupId>
 			<artifactId>maven-resources</artifactId>
-			<classifier>bitbucket-pipelines-service-small-v1</classifier>
+			<classifier>github-workflow-service-small-v1</classifier>
 			<type>yml</type>
 		</dependency>
 	</dependencies>
@@ -564,10 +564,10 @@
 	<profiles>
 
 		<profile>
-			<id>bitbucket-pipelines</id>
+			<id>github-workflow</id>
 			<activation>
 				<file>
-					<missing>bitbucket-pipelines.yml</missing>
+					<missing>.github/workflows/default.yml</missing>
 				</file>
 			</activation>
 			<build>
@@ -577,14 +577,14 @@
 						<artifactId>groovy-maven-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>set-pipeline-type</id>
+								<id>set-workflow-type</id>
 								<phase>validate</phase>
 								<goals>
 									<goal>execute</goal>
 								</goals>
 								<configuration>
 									<source>
-										propertyKey = 'pipeline.type'
+										propertyKey = 'workflow.type'
 										propertyValue = properties[propertyKey]
 										if (propertyValue == null) {
 											isService = new File(project.basedir, project.artifactId + "-chart").exists() || new File(project.basedir, project.artifactId + "-stack").exists()
@@ -596,7 +596,7 @@
 											properties[propertyKey] = propertyValue
 											project.properties.setProperty(propertyKey, propertyValue)
 										}
-										log.info('Pipeline type: ' + propertyValue)
+										log.info('Workflow type: ' + propertyValue)
 									</source>
 								</configuration>
 							</execution>
@@ -607,7 +607,7 @@
 						<artifactId>maven-dependency-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>download-bitbucket-pipelines.yml</id>
+								<id>download-github-workflow</id>
 								<phase>initialize</phase>
 								<goals>
 									<goal>copy-dependencies</goal>
@@ -620,7 +620,7 @@
 									<overWriteIfNewer>true</overWriteIfNewer>
 									<includeGroupIds>tech.go9</includeGroupIds>
 									<includeArtifactIds>maven-resources</includeArtifactIds>
-									<classifier>bitbucket-pipelines-${pipeline.type}-${pipeline.size}-${pipeline.version}</classifier>
+									<classifier>github-workflow-${workflow.type}-${workflow.size}-${workflow.version}</classifier>
 									<stripVersion>true</stripVersion>
 								</configuration>
 							</execution>
@@ -631,7 +631,7 @@
 						<artifactId>groovy-maven-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>move-bitbucket-pipelines.yml</id>
+								<id>move-github-workflow.yml</id>
 								<phase>initialize</phase>
 								<goals>
 									<goal>execute</goal>
@@ -639,8 +639,10 @@
 								<configuration>
 									<source>
 										if (properties['project.isParent'] == 'true') {
-											java.nio.file.Files.move(java.nio.file.Paths.get(project.basedir.toPath().toString(), "maven-resources-bitbucket-pipelines-${pipeline.type}-${pipeline.size}-${pipeline.version}.yml"),
-												java.nio.file.Paths.get(project.basedir.toPath().toString(), "bitbucket-pipelines.yml"),
+											java.io.File workflowsDirectory = new java.io.File(".github/workflows");
+											workflowsDirectory.mkdirs();
+											java.nio.file.Files.move(java.nio.file.Paths.get(project.basedir.toPath().toString(), "maven-resources-github-workflow-${workflow.type}-${workflow.size}-${workflow.version}.yml"),
+												java.nio.file.Paths.get(project.basedir.toPath().toString(), ".github/workflows/default.yml"),
 												java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 										}
 									</source>
